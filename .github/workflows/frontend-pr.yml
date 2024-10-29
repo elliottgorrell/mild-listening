@@ -1,0 +1,28 @@
+name: Frontend PR
+run-name: Running Frontend code pre-merge cheks for ${{ github.actor }}'s PullRequest 🚀
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'mobile/**'
+jobs:
+  lint_and_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+      - name: ⚙️ fetching npm packages
+        run: npm install
+        working-directory: ./mobile
+      - name: 🖌 Linting with eslint
+        run: npm run es:lint
+        working-directory: ./mobile
+      - name: 🖌 Linting with tsc (Typescript Compiler)
+        run: npm run ts:check
+        working-directory: ./mobile

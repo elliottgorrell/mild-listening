@@ -1,0 +1,4 @@
+**/metro.config.js
+android/**/*
+ios/**/*
+.expo/**/*

@@ -1,0 +1,41 @@
+name: Main Branch Updated
+run-name: There were changes to our Infra Code. Deploying these to Google Cloud Platform 🚀
+on:
+  push:
+    paths:
+      - 'infra/**'
+    branches:
+      - main
+jobs:
+  update_gcp_infra:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}"
+      - name: ⚙️ Terraform Init
+        run: terraform init
+        working-directory: ./infra
+      - name: 🚀 Applying Terraform changes
+        if: ${{ !env.ACT }}
+        run: terraform apply -auto-approve
+        working-directory: ./infra
+      - name: 💾 Saving Terraform State changes to git repo
+        if: ${{ !env.ACT }}
+        uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+        with:
+          add: 'infra/terraform.tfstate'
+          author_name: GithubActions
+          author_email: githubactions@tilp.com
+          committer_name: GithubActions
+          committer_email: githubactions@tilp.com
+          message: '[infra] TF State Updated'
+          pull: '--rebase --autostash'
