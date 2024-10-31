@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import RootNavigation from './navigation';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { CurrentUserContext } from './context';
+import { CurrentUserProvider } from './context';
 import { registerRootComponent } from 'expo';
-import { LoggedOutUser } from './types/user';
 
 function App(): React.JSX.Element {
-  const [user, setUser] = useState(LoggedOutUser);
   return (
     <>
-      <CurrentUserContext.Provider value={{ user, setUser }}>
+      <CurrentUserProvider>
         <SafeAreaProvider>
           <RootNavigation />
         </SafeAreaProvider>
-      </CurrentUserContext.Provider>
+      </CurrentUserProvider>
     </>
   );
 }

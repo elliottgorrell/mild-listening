@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import MainStack from './mainStack';
 import AuthStack from './authStack';
 import { LoggedOutUser } from '@/types/user';
-import { CurrentUserContext } from '@/context';
+import { useCurrentUserContext } from '@/context';
 
 export default function RootNavigation(): React.JSX.Element {
-  const { user } = useContext(CurrentUserContext);
+  const { user } = useCurrentUserContext();
 
   if (user === LoggedOutUser) {
     return <AuthStack />;

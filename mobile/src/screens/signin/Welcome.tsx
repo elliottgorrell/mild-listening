@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -11,7 +11,7 @@ import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '@/navigation/authStack';
 import tw from '@/lib/tailwind';
 import { SpotifyLoginButton } from '@/components/SpotifyButton';
-import { CurrentUserContext } from '@/context';
+import { useCurrentUserContext } from '@/context';
 
 const spotifyConfig = {
   clientId: '01e481bb514444be82c79d8cdc6a2174',
@@ -21,7 +21,7 @@ const spotifyConfig = {
 const WelcomeScreen: React.FC<
   StackScreenProps<AuthStackParamList, 'Welcome'>
 > = ({ navigation }) => {
-  const { setUser } = useContext(CurrentUserContext);
+  const { setUser } = useCurrentUserContext();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonsContainer}>

@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Button } from '@/components';
 import tw from '@/lib/tailwind';
-import { CurrentUserContext } from '@/context';
+import { useCurrentUserContext } from '@/context';
 import { LoggedOutUser, getProfilePicture } from '@/types/user';
 
 export default function Profile(): React.JSX.Element {
-  const { user, setUser } = useContext(CurrentUserContext);
+  const { user, setUser } = useCurrentUserContext();
 
   return (
     <View
