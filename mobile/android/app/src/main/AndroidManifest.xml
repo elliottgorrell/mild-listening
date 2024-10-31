@@ -30,6 +30,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="mildlistening"/>
         <data android:scheme="com.bootstrapper.elliott"/>
         <data android:scheme="exp+bootstrapper"/>
       </intent-filter>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from 'react';
 import {
   Pressable,
   PressableProps,
@@ -6,26 +6,26 @@ import {
   View,
   TextProps,
   ViewStyle,
-} from "react-native";
-import { useAppColorScheme } from "twrnc";
-import tailwind from "@/lib/tailwind";
-import { Icon, IconProps } from "./icon";
+} from 'react-native';
+import { useAppColorScheme } from 'twrnc';
+import tailwind from '@/lib/tailwind';
+import { Icon, IconProps } from './icon';
 
 export type ButtonVariant =
-  | "default"
-  | "success"
-  | "destructive"
-  | "info"
-  | "warning";
+  | 'default'
+  | 'success'
+  | 'destructive'
+  | 'info'
+  | 'warning';
 
-interface ButtonProps extends PressableProps {
+export interface ButtonProps extends PressableProps {
   variant?: ButtonVariant;
   text?: string;
   icon?: IconProps;
   selected?: boolean;
 }
 
-const VariantContext = createContext("default");
+const VariantContext = createContext('default');
 
 export const ButtonText = ({ style, children }: TextProps) => {
   const variant = useContext(VariantContext) as ButtonVariant;
@@ -51,29 +51,29 @@ export const ButtonIcon = ({ name, type, color, size }: IconProps) => {
 
   const variants = {
     default: {
-      light: tailwind.color("text-neutral-50"),
-      dark: tailwind.color("text-neutral-900"),
+      light: tailwind.color('text-neutral-50'),
+      dark: tailwind.color('text-neutral-900'),
     },
     destructive: {
-      light: tailwind.color("text-red-50"),
-      dark: tailwind.color("text-red-50"),
+      light: tailwind.color('text-red-50'),
+      dark: tailwind.color('text-red-50'),
     },
     success: {
-      light: tailwind.color("text-green-50"),
-      dark: tailwind.color("text-green-50"),
+      light: tailwind.color('text-green-50'),
+      dark: tailwind.color('text-green-50'),
     },
     warning: {
-      light: tailwind.color("text-orange-50"),
-      dark: tailwind.color("text-orange-50"),
+      light: tailwind.color('text-orange-50'),
+      dark: tailwind.color('text-orange-50'),
     },
     info: {
-      light: tailwind.color("text-blue-50"),
-      dark: tailwind.color("text-blue-50"),
+      light: tailwind.color('text-blue-50'),
+      dark: tailwind.color('text-blue-50'),
     },
   };
 
   const defaultColor =
-    colorScheme === "dark" ? variants[variant].dark : variants[variant].light;
+    colorScheme === 'dark' ? variants[variant].dark : variants[variant].light;
 
   return (
     <Icon
@@ -91,7 +91,7 @@ export const ButtonIcon = ({ name, type, color, size }: IconProps) => {
 export const Button = ({
   text,
   icon,
-  variant = "default",
+  variant = 'default',
   selected,
   style,
   children,
@@ -146,7 +146,7 @@ export const Button = ({
       return <ButtonText>{text}</ButtonText>;
     }
 
-    if (typeof children === "string") {
+    if (typeof children === 'string') {
       return <ButtonText>{children}</ButtonText>;
     }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -8,69 +8,37 @@ import {
   Platform,
 } from 'react-native';
 import type { StackScreenProps } from '@react-navigation/stack';
-import { Button } from '@/components/button';
 import type { AuthStackParamList } from '@/navigation/authStack';
-import { type FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { facebookClassicLogin, facebookLimitedLoginiOS } from '@/lib/facebook';
 import tw from '@/lib/tailwind';
-import { googleLogin } from '@/lib/google';
+import { SpotifyLoginButton } from '@/components/SpotifyButton';
+import { CurrentUserContext } from '@/context';
+
+const spotifyConfig = {
+  clientId: '01e481bb514444be82c79d8cdc6a2174',
+  scopes: ['user-read-email'],
+};
 
 const WelcomeScreen: React.FC<
   StackScreenProps<AuthStackParamList, 'Welcome'>
 > = ({ navigation }) => {
+  const { setUser } = useContext(CurrentUserContext);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonsContainer}>
         <Text style={tw`text-3xl font-extrabold self-center`}>
           Get Started...
         </Text>
-        <Button
-          text="EMAIL"
+
+        <SpotifyLoginButton
+          text="SPOTIFY"
           style={styles.button}
-          icon={{
-            name: 'envelope',
-            type: 'FontAwesome5',
-          }}
-          onPress={() => {
-            navigation.navigate('SignUpEmail');
-          }}
-        />
-        <Button
-          text="FACEBOOK"
-          style={styles.button}
-          icon={{
-            name: 'facebook',
-            type: 'FontAwesome5',
-          }}
-          onPress={() => {
-            onFacebookButtonPress()
-              .then((userCredential) => {
-                console.log(
-                  `Signed in with Facebook for ${userCredential.user.displayName}!`
-                );
-              })
-              .catch((err) => {
-                console.error(err);
-              });
-          }}
-        />
-        <Button
-          text="GOOGLE"
-          style={styles.button}
-          icon={{
-            name: 'google',
-            type: 'FontAwesome5',
-          }}
-          onPress={() => {
-            googleLogin()
-              .then((userCredential) => {
-                console.log(
-                  `Signed in with Google for ${userCredential.user.displayName}!`
-                );
-              })
-              .catch((err) => {
-                console.error(err);
-              });
+          icon={{ name: 'spotify', type: 'FontAwesome5' }}
+          clientId={spotifyConfig.clientId}
+          scopes={spotifyConfig.scopes}
+          onLoginSuccess={(spotifyApi, user) => {
+            console.log(`Signed in with Spotify for ${user.display_name}!`);
+            console.log(JSON.stringify(user));
+            setUser({ user: user });
           }}
         />
       </View>

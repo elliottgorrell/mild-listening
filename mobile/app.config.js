@@ -65,6 +65,7 @@ module.exports = ({ config }) => {
           },
         ],
       ],
+      scheme: "mildlistening",
       extra: {
         environment: "local",
         eas: {

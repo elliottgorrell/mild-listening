@@ -1,6 +1,6 @@
-import { type Dispatch, type SetStateAction, createContext } from "react";
+import { type Dispatch, type SetStateAction, createContext } from 'react';
 
-import { type User, LoggedOutUser } from "./types/user";
+import { type User, LoggedOutUser } from './types/user';
 
 export interface CurrentUserContextType {
   user: User;

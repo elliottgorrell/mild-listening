@@ -1,27 +1,40 @@
-import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { type UserProfile } from '@spotify/web-api-ts-sdk';
+import { ImageSourcePropType } from 'react-native';
 
 export interface User {
-  user: FirebaseAuthTypes.UserInfo;
-  metadata: UserMetadata;
-}
-
-export interface UserMetadata {
-  uid: string;
-  onboardingStage: OnboardingStage;
-}
-
-export enum OnboardingStage {
-  Welcome = 0,
-  Finished = 100,
+  user: UserProfile;
 }
 
 export const LoggedOutUser: User = {
   user: {
-    uid: "0",
-    providerId: "0",
+    display_name: '',
+    email: '',
+    external_urls: {
+      spotify: '',
+    },
+    followers: {
+      href: null,
+      total: 0,
+    },
+    href: '',
+    id: '',
+    images: [],
+    type: '',
+    uri: '',
+    country: '',
+    explicit_content: {
+      filter_enabled: false,
+      filter_locked: false,
+    },
+    product: '',
   },
-  metadata: {
-    uid: "0",
-    onboardingStage: OnboardingStage.Welcome,
-  },
+};
+
+export const getProfilePicture = (user: User): ImageSourcePropType => {
+  const userProfile = user.user;
+  const uri =
+    userProfile.images.length > 0
+      ? userProfile.images[0].url
+      : require('@/assets/images/user_icon.png');
+  return { uri };
 };

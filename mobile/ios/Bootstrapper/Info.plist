@@ -27,6 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>mildlistening</string>
           <string>com.bootstrapper.elliott</string>
         </array>
       </dict>

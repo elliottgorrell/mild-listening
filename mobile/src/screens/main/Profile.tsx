@@ -1,43 +1,19 @@
-import React, { useContext } from "react";
-import { View, Text, Image } from "react-native";
-import { Button, TextInput } from "@/components";
-import tw from "@/lib/tailwind";
-import { CurrentUserContext, CurrentUserContextType } from "@/context";
-import auth from "@react-native-firebase/auth";
-import { updateUserMetadata } from "@/db/user";
-import { OnboardingStage } from "@/types/user";
-import { updateUserInfo } from "@/db/user";
-const signOutUserSync = (): void => {
-  async function signOutUser(): Promise<void> {
-    await auth().signOut();
-  }
-  signOutUser().catch((e) => {
-    console.error(e);
-  });
-};
-
-const resetOnboarding = (currUserContext: CurrentUserContextType): void => {
-  async function inner(): Promise<void> {
-    await updateUserMetadata(
-      { onboardingStage: OnboardingStage.Welcome },
-      currUserContext,
-    );
-  }
-  inner().catch((e) => {
-    console.error(e);
-  });
-};
+import React, { useContext } from 'react';
+import { View, Text, Image } from 'react-native';
+import { Button } from '@/components';
+import tw from '@/lib/tailwind';
+import { CurrentUserContext } from '@/context';
+import { LoggedOutUser, getProfilePicture } from '@/types/user';
 
 export default function Profile(): React.JSX.Element {
   const { user, setUser } = useContext(CurrentUserContext);
-  const [newName, setNewName] = React.useState("");
 
   return (
     <View
       style={tw`flex-1 flex-col bg-gray-300 items-center gap-5 justify-between`}
     >
       <Image
-        source={{ uri: user.user.photoURL }}
+        source={getProfilePicture(user)}
         style={tw`rounded-full aspect-square w-2/6 m-5`}
       />
 
@@ -48,41 +24,16 @@ export default function Profile(): React.JSX.Element {
           <Text style={tw`text-white  text-center`}>Profile</Text>
         </View>
         <Text style={tw`text-gray-500 text-center font-extrabold`}>
-          {user.user.displayName}
+          {user.user.display_name}
         </Text>
-        <View style={tw`m-4 gap-3`}>
-          <TextInput
-            placeholder="New Name"
-            value={newName}
-            onChangeText={(text) => {
-              setNewName(text);
-            }}
-          />
-          <Button
-            onPress={() => {
-              updateUserInfo({ displayName: newName }, { user, setUser }).catch(
-                (e) => console.error(e),
-              );
-            }}
-            text="Update Display Name"
-          />
-        </View>
       </View>
 
       <View style={tw`flex-1 flex-row items-center gap-5`}>
         <Button
-          onPress={signOutUserSync}
-          text="Sign Out"
-          style={tw`rounded-3xl`}
-        />
-        <Button
           onPress={() => {
-            if (user === null) {
-              return;
-            }
-            resetOnboarding({ user, setUser });
+            setUser(LoggedOutUser);
           }}
-          text="Restart Onboarding"
+          text="Sign Out"
           style={tw`rounded-3xl`}
         />
       </View>
