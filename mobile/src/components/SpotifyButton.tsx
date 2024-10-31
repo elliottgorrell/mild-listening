@@ -1,7 +1,8 @@
 import * as WebBrowser from 'expo-web-browser';
 
 import { Button, type ButtonProps } from '@/components/button';
-import { SpotifyApi, UserProfile } from '@spotify/web-api-ts-sdk';
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
+import { User } from '@/types/user';
 
 import {
   generateAuthCodeWithPKCEStrategy,
@@ -13,34 +14,28 @@ import {
 WebBrowser.maybeCompleteAuthSession();
 
 interface SpotifyLoginButtonProps extends ButtonProps {
-  clientId: string;
-  scopes: string[];
-  onLoginSuccess: (spotifySdk: SpotifyApi, user: UserProfile) => void;
+  onLoginSuccess: (spotifySdk: SpotifyApi, user: User) => void;
 }
 
 export const SpotifyLoginButton = ({
-  clientId,
-  scopes,
   onLoginSuccess,
   ...props
 }: SpotifyLoginButtonProps) => {
   const onButtonClick = async (): Promise<void> => {
-    const { code, code_verifier } = await generateAuthCodeWithPKCEStrategy(
-      clientId,
-      scopes
-    );
+    const { code, code_verifier } = await generateAuthCodeWithPKCEStrategy();
     const accessTokenResponse = await generateAccessTokenFromAuthCode(
-      clientId,
       code,
       code_verifier
     );
+    const accessToken = expoTokenToSpotifyToken(accessTokenResponse);
 
-    const spotifyApi = initSpotifySdk(
-      clientId,
-      expoTokenToSpotifyToken(accessTokenResponse)
-    );
+    const spotifyApi = initSpotifySdk(accessToken);
 
-    const user = await spotifyApi.currentUser.profile();
+    const userProfile = await spotifyApi.currentUser.profile();
+    const user = {
+      user: userProfile,
+      token: accessToken,
+    };
     onLoginSuccess(spotifyApi, user);
   };
 

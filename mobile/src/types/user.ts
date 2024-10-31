@@ -1,8 +1,10 @@
 import { type UserProfile } from '@spotify/web-api-ts-sdk';
 import { ImageSourcePropType } from 'react-native';
+import { AccessToken } from '@spotify/web-api-ts-sdk';
 
 export interface User {
   user: UserProfile;
+  token: AccessToken;
 }
 
 export const LoggedOutUser: User = {
@@ -27,6 +29,12 @@ export const LoggedOutUser: User = {
       filter_locked: false,
     },
     product: '',
+  },
+  token: {
+    access_token: '',
+    token_type: '',
+    expires_in: 0,
+    refresh_token: '',
   },
 };
 

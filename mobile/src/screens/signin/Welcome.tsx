@@ -6,11 +6,6 @@ import tw from '@/lib/tailwind';
 import { SpotifyLoginButton } from '@/components/SpotifyButton';
 import { useCurrentUserContext } from '@/context';
 
-const spotifyConfig = {
-  clientId: '01e481bb514444be82c79d8cdc6a2174',
-  scopes: ['user-read-email'],
-};
-
 const WelcomeScreen: React.FC<
   StackScreenProps<AuthStackParamList, 'Welcome'>
 > = ({ navigation }) => {
@@ -26,12 +21,11 @@ const WelcomeScreen: React.FC<
           text="SPOTIFY"
           style={styles.button}
           icon={{ name: 'spotify', type: 'FontAwesome5' }}
-          clientId={spotifyConfig.clientId}
-          scopes={spotifyConfig.scopes}
           onLoginSuccess={(spotifyApi, user) => {
-            console.log(`Signed in with Spotify for ${user.display_name}!`);
-            console.log(JSON.stringify(user));
-            setUser({ user: user });
+            console.log(
+              `Signed in with Spotify for ${user.user.display_name}!`
+            );
+            setUser(user);
           }}
         />
       </View>
