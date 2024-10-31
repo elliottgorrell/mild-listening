@@ -1,15 +1,15 @@
-import firestore from "@react-native-firebase/firestore";
-import { OnboardingStage, type UserMetadata, type User } from "@/types/user";
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import { type CurrentUserContextType } from "@/context";
-const collectionName = "users";
+import firestore from '@react-native-firebase/firestore';
+import { OnboardingStage, type UserMetadata, type User } from '@/types/user';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { type CurrentUserContextType } from '@/context';
+const collectionName = 'users';
 
 const defaultUserMetadata = {
   onboardingStage: OnboardingStage.Welcome,
 };
 
 export async function getUserMetadata(
-  uid: string,
+  uid: string
 ): Promise<UserMetadata | null> {
   console.debug(`fetching user from firestore with uid: ${uid}`);
   const userDocument = await firestore()
@@ -31,7 +31,7 @@ export async function createUserMetadata(uid: string): Promise<UserMetadata> {
   const currUser = await getUserMetadata(uid);
 
   if (currUser !== null) {
-    throw new Error("User already exists");
+    throw new Error('User already exists');
   }
   await firestore()
     .collection(collectionName)
@@ -59,7 +59,7 @@ export interface UserMetadataUpdate {
  */
 export async function updateUserMetadata(
   metadata: UserMetadataUpdate,
-  currContext: CurrentUserContextType,
+  currContext: CurrentUserContextType
 ): Promise<void> {
   let { user, setUser } = currContext;
 
@@ -84,13 +84,13 @@ export async function updateUserMetadata(
 
 export async function updateUserInfo(
   updateInfo: FirebaseAuthTypes.UpdateProfile,
-  currContext: CurrentUserContextType,
+  currContext: CurrentUserContextType
 ): Promise<void> {
   // Update Firebase
   const user = auth().currentUser;
   if (!user) {
     throw new Error(
-      "udpate user info can only be used during a logged in session",
+      'udpate user info can only be used during a logged in session'
     );
   }
 

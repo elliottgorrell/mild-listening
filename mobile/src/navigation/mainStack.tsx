@@ -1,12 +1,12 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Home, Secondary, Profile } from "@/screens/main";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import tw from "@/lib/tailwind";
-import { Icon } from "@/components";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Home, Secondary, Profile } from '@/screens/main';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import tw from '@/lib/tailwind';
+import { Icon } from '@/components';
+import { Ionicons } from '@expo/vector-icons';
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
@@ -15,9 +15,9 @@ type tabIconsType = {
 };
 
 const tabIcons: tabIconsType = {
-  Home: "albums-outline",
-  Secondary: "chatbubble",
-  Profile: "person",
+  Home: 'albums-outline',
+  Secondary: 'chatbubble',
+  Profile: 'person',
 };
 
 export default function MainStack(): React.JSX.Element {
@@ -33,13 +33,13 @@ export default function MainStack(): React.JSX.Element {
           {() => (
             <Tab.Navigator
               screenOptions={({ route }) => ({
-                tabBarInactiveTintColor: tw.color("neutral-200"),
-                tabBarActiveTintColor: tw.color("neutral-500"),
+                tabBarInactiveTintColor: tw.color('neutral-200'),
+                tabBarActiveTintColor: tw.color('neutral-500'),
                 tabBarIndicatorStyle: {
-                  backgroundColor: "transparent",
+                  backgroundColor: 'transparent',
                 },
                 tabBarStyle: {
-                  backgroundColor: tw.color("white"),
+                  backgroundColor: tw.color('white'),
                   paddingTop: insets.top,
                   paddingLeft: insets.left,
                   paddingRight: insets.right,
@@ -63,8 +63,8 @@ export default function MainStack(): React.JSX.Element {
               })}
             >
               <Tab.Screen name="Home" component={Home} />
-              <Tab.Screen name={"Secondary"} component={Secondary} />
-              <Tab.Screen name={"Profile"} component={Profile} />
+              <Tab.Screen name={'Secondary'} component={Secondary} />
+              <Tab.Screen name={'Profile'} component={Profile} />
             </Tab.Navigator>
           )}
         </Stack.Screen>

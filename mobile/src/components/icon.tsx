@@ -13,7 +13,7 @@ import {
   Octicons,
   SimpleLineIcons,
   Zocial,
-} from "@expo/vector-icons";
+} from '@expo/vector-icons';
 
 export type IconNameMap = {
   AntDesign: keyof typeof AntDesign.glyphMap;
@@ -52,61 +52,61 @@ export const Icon = <T extends IconType>({
   size,
   color,
 }: IconProps<T>) => {
-  if (type === "AntDesign") {
+  if (type === 'AntDesign') {
     return <AntDesign name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Entypo") {
+  if (type === 'Entypo') {
     return <Entypo name={name as any} size={size} color={color} />;
   }
 
-  if (type === "EvilIcons") {
+  if (type === 'EvilIcons') {
     return <EvilIcons name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Feather") {
+  if (type === 'Feather') {
     return <Feather name={name as any} size={size} color={color} />;
   }
 
-  if (type === "FontAwesome") {
+  if (type === 'FontAwesome') {
     return <FontAwesome name={name as any} size={size} color={color} />;
   }
 
-  if (type === "FontAwesome5") {
+  if (type === 'FontAwesome5') {
     return <FontAwesome5 name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Fontisto") {
+  if (type === 'Fontisto') {
     return <Fontisto name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Foundation") {
+  if (type === 'Foundation') {
     return <Foundation name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Ionicons") {
+  if (type === 'Ionicons') {
     return <Ionicons name={name as any} size={size} color={color} />;
   }
 
-  if (type === "MaterialCommunityIcons") {
+  if (type === 'MaterialCommunityIcons') {
     return (
       <MaterialCommunityIcons name={name as any} size={size} color={color} />
     );
   }
 
-  if (type === "MaterialIcons") {
+  if (type === 'MaterialIcons') {
     return <MaterialIcons name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Octicons") {
+  if (type === 'Octicons') {
     return <Octicons name={name as any} size={size} color={color} />;
   }
 
-  if (type === "SimpleLineIcons") {
+  if (type === 'SimpleLineIcons') {
     return <SimpleLineIcons name={name as any} size={size} color={color} />;
   }
 
-  if (type === "Zocial") {
+  if (type === 'Zocial') {
     return <Zocial name={name as any} size={size} color={color} />;
   }
 

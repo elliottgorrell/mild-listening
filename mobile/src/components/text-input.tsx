@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   TextInput as DefaultTextInput,
   Platform,
   TextInputProps,
-} from "react-native";
-import tailwind from "twrnc";
+} from 'react-native';
+import tailwind from 'twrnc';
 
 /**
  * React Native text input component built with Tailwind CSS
@@ -30,11 +30,11 @@ export const TextInput = ({
       onEndEditing={handleEndEditing}
       style={[
         tailwind`w-full bg-neutral-100 dark:bg-neutral-900 border border-black/20 dark:border-white/20 rounded-md h-12 px-4 text-neutral-950 dark:text-neutral-50`,
-        isFocused && Platform.OS !== "web" ? tailwind`border-blue-500` : {},
+        isFocused && Platform.OS !== 'web' ? tailwind`border-blue-500` : {},
         props.style,
       ]}
       placeholderTextColor={
-        placeholderTextColor || tailwind.color("text-neutral-500")
+        placeholderTextColor || tailwind.color('text-neutral-500')
       }
     />
   );

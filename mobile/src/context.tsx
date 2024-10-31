@@ -6,7 +6,6 @@ import {
   useState,
   useContext,
 } from 'react';
-
 import { type User, LoggedOutUser } from './types/user';
 
 export interface CurrentUserContextType {
