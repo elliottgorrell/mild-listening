@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  SafeAreaView,
-  View,
-  Pressable,
-  Text,
-  Platform,
-} from 'react-native';
+import { StyleSheet, SafeAreaView, View, Pressable, Text } from 'react-native';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '@/navigation/authStack';
 import tw from '@/lib/tailwind';
@@ -57,14 +50,6 @@ const WelcomeScreen: React.FC<
     </SafeAreaView>
   );
 };
-
-async function onFacebookButtonPress(): Promise<FirebaseAuthTypes.UserCredential> {
-  // If on android we use classic login and if on iOS we have to use limited login due to apple rules
-  if (Platform.OS === 'ios') {
-    return await facebookLimitedLoginiOS();
-  }
-  return await facebookClassicLogin();
-}
 
 const styles = StyleSheet.create({
   container: {
