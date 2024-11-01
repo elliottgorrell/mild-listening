@@ -7,8 +7,8 @@ import {
   useContext,
   useEffect,
 } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { type User, LoggedOutUser } from './types/user';
+import { type User, LoggedOutUser } from '@/types/user';
+import { fetchUser, storeUser, deleteUser } from '@/lib/localStorage';
 
 export interface CurrentUserContextType {
   user: User;
@@ -19,31 +19,6 @@ export interface CurrentUserContextType {
 const CurrentUserContext = createContext<CurrentUserContextType>({
   user: LoggedOutUser,
 } as CurrentUserContextType);
-
-const storeUser = async (user: User) => {
-  try {
-    if (user === LoggedOutUser) {
-      await AsyncStorage.removeItem('@user');
-      console.debug('Removed user from local storage');
-    } else {
-      const jsonValue = JSON.stringify(user);
-      await AsyncStorage.setItem('@user', jsonValue);
-      console.debug(`Saved user ${user.user.display_name} to local storage`);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const fetchUser = async (): Promise<User | null> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('@user');
-    return jsonValue != null ? JSON.parse(jsonValue) : null;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
 
 export const CurrentUserProvider: React.FC<PropsWithChildren> = (props) => {
   const [user, setUser] = useState<User>(LoggedOutUser);
@@ -61,7 +36,11 @@ export const CurrentUserProvider: React.FC<PropsWithChildren> = (props) => {
   }, []);
 
   useEffect(() => {
-    storeUser(user);
+    if (user === LoggedOutUser) {
+      deleteUser();
+    } else {
+      storeUser(user);
+    }
   }, [user]);
 
   // We ensure the state value actually exists before letting the children render
