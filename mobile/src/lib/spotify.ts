@@ -5,11 +5,19 @@ import {
   TokenResponse,
 } from 'expo-auth-session';
 
-import { SpotifyApi, AccessToken } from '@spotify/web-api-ts-sdk';
+import {
+  SpotifyApi,
+  AccessToken,
+  IAuthStrategy,
+  ICachable,
+  SdkConfiguration,
+  ICachingStrategy,
+} from '@spotify/web-api-ts-sdk';
 import { User } from '@/types/user';
+import { storage } from './localStorage';
+import { type ICacheStore, GenericCache } from '@spotify/web-api-ts-sdk';
 
 let spotifySdk: SpotifyApi | null = null;
-const EXPIRY_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
 
 export const SpotifyConfig = {
   authorizationDomain: 'https://accounts.spotify.com',
@@ -25,7 +33,14 @@ const redirectUri = makeRedirectUri({
 });
 
 export const initSpotifySdk = (accessToken: AccessToken): SpotifyApi => {
-  spotifySdk = SpotifyApi.withAccessToken(SpotifyConfig.clientId, accessToken);
+  const config = { cachingStrategy: new LocalStorageCachingStrategy() };
+  const strategy = new ProvidedPKCETokenStrategy(
+    SpotifyConfig.clientId,
+    accessToken
+  );
+  spotifySdk = new SpotifyApi(strategy, config);
+
+  console.debug('Spotify SDK initialized');
   return spotifySdk;
 };
 
@@ -105,15 +120,153 @@ export const generateAccessTokenFromAuthCode = async (
 export const expoTokenToSpotifyToken = (
   expoToken: TokenResponse
 ): AccessToken => {
-  let expires = undefined;
-  if (expoToken.expiresIn) {
-    expires = Date.now() + expoToken.expiresIn * 1000 - EXPIRY_BUFFER_MS;
-  }
   return {
     access_token: expoToken.accessToken,
     token_type: expoToken.tokenType,
     expires_in: expoToken.expiresIn ?? 0,
     refresh_token: expoToken.refreshToken ?? '',
-    expires,
+    expires: undefined,
   };
 };
+
+class LocalStorageCachingStrategy extends GenericCache {
+  constructor() {
+    console.debug('Initializing LocalStorageCachingStrategy');
+    super(new LocalStorageCacheStore());
+  }
+}
+
+class LocalStorageCacheStore implements ICacheStore {
+  public get(key: string): string | null {
+    console.debug(`Retrieving ${key} from local storage`);
+
+    const val = storage.getString(key) ?? null;
+    console.debug(`val: ${val}`);
+
+    return val;
+  }
+
+  public set(key: string, value: string): void {
+    console.debug(`Storing ${key} with value ${value} in local storage`);
+    storage.set(key, value);
+  }
+
+  public remove(key: string): void {
+    console.debug(`Removing ${key} from local storage`);
+    storage.delete(key);
+  }
+}
+
+export default class ProvidedPKCETokenStrategy implements IAuthStrategy {
+  private static readonly cacheKey = 'spotify-sdk:token';
+  private configuration: SdkConfiguration | null = null;
+  private initalToken: AccessToken;
+  protected get cache(): ICachingStrategy {
+    return this.configuration!.cachingStrategy;
+  }
+
+  constructor(
+    protected clientId: string,
+    token: AccessToken
+  ) {
+    console.debug('Initializing ProvidedPKCETokenStrategy');
+    this.clientId = clientId;
+    this.initalToken = AccessTokenHelpers.toCachable(token);
+  }
+
+  public setConfiguration(configuration: SdkConfiguration): void {
+    this.configuration = configuration;
+  }
+
+  public async getOrCreateAccessToken(): Promise<AccessToken> {
+    const token = await this.cache.getOrCreate<AccessToken>(
+      ProvidedPKCETokenStrategy.cacheKey,
+      async () => {
+        // We should never be creating access tokens
+        const token = await this.getAccessToken();
+        if (!token) {
+          console.debug(
+            'must be first run with strategy so storing token provided to constructor'
+          );
+          this.cache.setCacheItem(
+            ProvidedPKCETokenStrategy.cacheKey,
+            this.initalToken
+          );
+          return this.initalToken;
+        }
+        return token;
+      },
+      async (expiring) => {
+        return AccessTokenHelpers.refreshCachedAccessToken(
+          this.clientId,
+          expiring
+        );
+      }
+    );
+
+    return token;
+  }
+
+  public async getAccessToken(): Promise<AccessToken | null> {
+    const token = await this.cache.get<AccessToken>(
+      ProvidedPKCETokenStrategy.cacheKey
+    );
+    return token;
+  }
+
+  public removeAccessToken(): void {
+    this.cache.remove(ProvidedPKCETokenStrategy.cacheKey);
+  }
+}
+
+class AccessTokenHelpers {
+  public static async refreshCachedAccessToken(
+    clientId: string,
+    item: AccessToken
+  ) {
+    const updated = await AccessTokenHelpers.refreshToken(
+      clientId,
+      item.refresh_token
+    );
+    return AccessTokenHelpers.toCachable(updated);
+  }
+
+  public static toCachable(item: AccessToken): ICachable & AccessToken {
+    // If it already has a calculated expires value it is good to go
+    if (item.expires) {
+      return item;
+    }
+
+    return { ...item, expires: this.calculateExpiry(item) };
+  }
+
+  public static calculateExpiry(item: AccessToken) {
+    return Date.now() + item.expires_in * 1000;
+  }
+
+  private static async refreshToken(
+    clientId: string,
+    refreshToken: string
+  ): Promise<AccessToken> {
+    console.debug(`Refreshing token with refresh token: ${refreshToken}`);
+    const params = new URLSearchParams();
+    params.append('client_id', clientId);
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', refreshToken);
+
+    const result = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+
+    const text = await result.text();
+
+    if (!result.ok) {
+      throw new Error(`Failed to refresh token: ${result.statusText}, ${text}`);
+    }
+
+    const json: AccessToken = JSON.parse(text);
+    return json;
+  }
+}
