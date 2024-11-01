@@ -50,7 +50,7 @@ throwIfNotSet("EXPO_PUBLIC_GOOGLE_WEB_ID"),
           [
             "expo-build-properties",
             {
-              ios: { useFrameworks: "static" },
+              ios: { useFrameworks: "static", ccacheEnabled: true },
             },
           ],
           ["@react-native-google-signin/google-signin"],
