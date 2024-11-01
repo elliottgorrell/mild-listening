@@ -32,7 +32,16 @@ const redirectUri = makeRedirectUri({
   path: 'spotify-login-callback',
 });
 
-export const initSpotifySdk = (accessToken: AccessToken): SpotifyApi => {
+/**
+ * Initializes the Spotify SDK with the provided access token.
+ * If an access token is not provided, the Spotify SDK will attempt to retrieve
+ * it from the local storage. If none is found it will throw an error
+ *
+ * @param accessToken - Optional access token for Spotify API
+ *                      authentication.
+ * @returns The initialized SpotifyApi instance.
+ */
+export const initSpotifySdk = (accessToken?: AccessToken): SpotifyApi => {
   const config = { cachingStrategy: new LocalStorageCachingStrategy() };
   const strategy = new ProvidedPKCETokenStrategy(
     SpotifyConfig.clientId,
@@ -47,21 +56,11 @@ export const initSpotifySdk = (accessToken: AccessToken): SpotifyApi => {
 /**
  * Retrieves the Spotify SDK instance. If the SDK has already been initialized,
  * it returns the existing instance. Otherwise, it attempts to initialize the SDK
- * using the provided user's credentials.
  *
- * @param user - Optional user object containing the Spotify user profile and access token.
  * @returns The SpotifyApi instance.
  * @throws Error if the Spotify SDK has not been initialized and no user credentials are provided.
  */
-export const getSpotifySdk = (user?: User): SpotifyApi => {
-  if (spotifySdk) {
-    return spotifySdk;
-  }
-  if (user) {
-    return initSpotifySdk(user.token);
-  }
-  throw new Error('Spotify SDK not initialized');
-};
+export const getSpotifySdk = (): SpotifyApi => spotifySdk ?? initSpotifySdk();
 
 export const generateAuthCodeWithPKCEStrategy = async (): Promise<{
   code: string;
@@ -125,7 +124,7 @@ export const expoTokenToSpotifyToken = (
     token_type: expoToken.tokenType,
     expires_in: expoToken.expiresIn ?? 0,
     refresh_token: expoToken.refreshToken ?? '',
-    expires: undefined,
+    expires: undefined, // We will let the Spotify SDK calculate the expiration
   };
 };
 
@@ -158,20 +157,21 @@ class LocalStorageCacheStore implements ICacheStore {
 }
 
 export default class ProvidedPKCETokenStrategy implements IAuthStrategy {
-  private static readonly cacheKey = 'spotify-sdk:token';
+  private static readonly cacheKey = '@token';
   private configuration: SdkConfiguration | null = null;
-  private initalToken: AccessToken;
+  private initalToken: AccessToken | null = null;
   protected get cache(): ICachingStrategy {
     return this.configuration!.cachingStrategy;
   }
 
   constructor(
     protected clientId: string,
-    token: AccessToken
+    token?: AccessToken
   ) {
-    console.debug('Initializing ProvidedPKCETokenStrategy');
     this.clientId = clientId;
-    this.initalToken = AccessTokenHelpers.toCachable(token);
+    if (token) {
+      this.initalToken = AccessTokenHelpers.toCachable(token);
+    }
   }
 
   public setConfiguration(configuration: SdkConfiguration): void {
@@ -182,26 +182,26 @@ export default class ProvidedPKCETokenStrategy implements IAuthStrategy {
     const token = await this.cache.getOrCreate<AccessToken>(
       ProvidedPKCETokenStrategy.cacheKey,
       async () => {
-        // We should never be creating access tokens
         const token = await this.getAccessToken();
-        if (!token) {
-          console.debug(
-            'must be first run with strategy so storing token provided to constructor'
-          );
-          this.cache.setCacheItem(
-            ProvidedPKCETokenStrategy.cacheKey,
-            this.initalToken
-          );
-          return this.initalToken;
+        if (token) {
+          return token;
         }
-        return token;
-      },
-      async (expiring) => {
-        return AccessTokenHelpers.refreshCachedAccessToken(
-          this.clientId,
-          expiring
+        console.debug(
+          'No token found in cache, will store one provided in constructor'
         );
-      }
+        if (!this.initalToken) {
+          throw new Error(
+            'Cache had no exisiting spotify api token and none was provided in constructor to ProvidedPKCETokenStrategy'
+          );
+        }
+        this.cache.setCacheItem(
+          ProvidedPKCETokenStrategy.cacheKey,
+          this.initalToken
+        );
+        return this.initalToken;
+      },
+      async (expiring) =>
+        AccessTokenHelpers.refreshCachedAccessToken(this.clientId, expiring)
     );
 
     return token;

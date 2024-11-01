@@ -4,11 +4,8 @@ import tw from '@/lib/tailwind';
 import Carousel from 'react-native-reanimated-carousel';
 import { getSpotifySdk } from '@/lib/spotify';
 import { SavedAlbum } from '@spotify/web-api-ts-sdk';
-import { useCurrentUserContext } from '@/context';
-import { dump } from '@/lib/localStorage';
 
 export default function Home(): React.JSX.Element {
-  const { user } = useCurrentUserContext();
   let [albums, setAlbums] = React.useState<SavedAlbum[]>([]);
 
   const width = Dimensions.get('window').width;
@@ -16,7 +13,7 @@ export default function Home(): React.JSX.Element {
   useEffect(() => {
     const fetchAlbums = async () => {
       try {
-        const spotify = await getSpotifySdk(user);
+        const spotify = await getSpotifySdk();
         const albums = await spotify.currentUser.albums.savedAlbums();
         setAlbums(albums.items);
         console.debug(`albums fetched count: ${albums.items.length}`);
