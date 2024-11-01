@@ -1,6 +1,4 @@
 import {
-  type Dispatch,
-  type SetStateAction,
   createContext,
   PropsWithChildren,
   useState,
@@ -8,11 +6,12 @@ import {
   useEffect,
 } from 'react';
 import { type User, LoggedOutUser } from '@/types/user';
-import { fetchUser, storeUser, deleteUser } from '@/lib/localStorage';
+import { fetchUser, storeUser, clearData } from '@/lib/localStorage';
 
 export interface CurrentUserContextType {
   user: User;
-  setUser: Dispatch<SetStateAction<User>>;
+  signIn: (user: User) => void;
+  signOut: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -29,23 +28,30 @@ export const CurrentUserProvider: React.FC<PropsWithChildren> = (props) => {
     if (storedUser) {
       console.debug(`rehydrating user: ${JSON.stringify(storedUser)}`);
       setUser(storedUser);
+    } else {
+      console.debug('No user found in local storage');
     }
   }, []);
 
-  useEffect(() => {
-    if (user === LoggedOutUser) {
-      deleteUser();
-    } else {
-      storeUser(user);
-    }
-  }, [user]);
+  const signIn = (user: User): void => {
+    setUser(user);
+    storeUser(user);
+    console.info(`Logged in as ${user.user.display_name}`);
+  };
+
+  const signOut = (): void => {
+    console.info('Logged out');
+    setUser(LoggedOutUser);
+    clearData();
+    console.debug('Wiped Local storage');
+  };
 
   // We ensure the state value actually exists before letting the children render
   // If waiting for some data to load, we may render a spinner, text, or something useful instead of null
   if (!user) return null;
 
   return (
-    <CurrentUserContext.Provider value={{ user, setUser }}>
+    <CurrentUserContext.Provider value={{ user, signIn, signOut }}>
       {props.children}
     </CurrentUserContext.Provider>
   );

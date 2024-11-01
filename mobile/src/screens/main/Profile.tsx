@@ -3,10 +3,10 @@ import { View, Text, Image } from 'react-native';
 import { Button } from '@/components';
 import tw from '@/lib/tailwind';
 import { useCurrentUserContext } from '@/context';
-import { LoggedOutUser, getProfilePicture } from '@/types/user';
+import { getProfilePicture } from '@/types/user';
 
 export default function Profile(): React.JSX.Element {
-  const { user, setUser } = useCurrentUserContext();
+  const { user, signOut } = useCurrentUserContext();
 
   return (
     <View
@@ -29,13 +29,7 @@ export default function Profile(): React.JSX.Element {
       </View>
 
       <View style={tw`flex-1 flex-row items-center gap-5`}>
-        <Button
-          onPress={() => {
-            setUser(LoggedOutUser);
-          }}
-          text="Sign Out"
-          style={tw`rounded-3xl`}
-        />
+        <Button onPress={signOut} text="Sign Out" style={tw`rounded-3xl`} />
       </View>
     </View>
   );

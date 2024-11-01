@@ -9,7 +9,7 @@ import { useCurrentUserContext } from '@/context';
 const WelcomeScreen: React.FC<
   StackScreenProps<AuthStackParamList, 'Welcome'>
 > = ({ navigation }) => {
-  const { setUser } = useCurrentUserContext();
+  const { signIn } = useCurrentUserContext();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonsContainer}>
@@ -21,12 +21,7 @@ const WelcomeScreen: React.FC<
           text="SPOTIFY"
           style={styles.button}
           icon={{ name: 'spotify', type: 'FontAwesome5' }}
-          onLoginSuccess={(spotifyApi, user) => {
-            console.log(
-              `Signed in with Spotify for ${user.user.display_name}!`
-            );
-            setUser(user);
-          }}
+          onLoginSuccess={(spotifyApi, user) => signIn(user)}
         />
       </View>
 

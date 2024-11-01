@@ -5,6 +5,7 @@ import Carousel from 'react-native-reanimated-carousel';
 import { getSpotifySdk } from '@/lib/spotify';
 import { SavedAlbum } from '@spotify/web-api-ts-sdk';
 import { useCurrentUserContext } from '@/context';
+import { dump } from '@/lib/localStorage';
 
 export default function Home(): React.JSX.Element {
   const { user } = useCurrentUserContext();
