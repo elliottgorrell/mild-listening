@@ -1,33 +1,35 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type User } from '@/types/user';
 import { AccessToken } from '@spotify/web-api-ts-sdk';
+import { MMKV } from 'react-native-mmkv';
 
-export const storeUser = async (user: User) => {
+export const storage = new MMKV();
+
+export const storeUser = (user: User) => {
   try {
     const userJsonValue = JSON.stringify(user.user);
     const tokenJsonValue = JSON.stringify(user.token);
-    await AsyncStorage.setItem('@user', userJsonValue);
-    await AsyncStorage.setItem('@token', tokenJsonValue);
+    storage.set('@user', userJsonValue);
+    storage.set('@token', tokenJsonValue);
     console.debug(`Saved user ${user.user.display_name} to local storage`);
   } catch (e) {
     console.error(e);
   }
 };
 
-export const deleteUser = async () => {
+export const deleteUser = () => {
   try {
-    await AsyncStorage.removeItem('@user');
-    await AsyncStorage.removeItem('@token');
+    storage.delete('@user');
+    storage.delete('@token');
     console.debug('Removed user from local storage');
   } catch (e) {
     console.error(e);
   }
 };
 
-export const fetchUser = async (): Promise<User | null> => {
+export const fetchUser = (): User | null => {
   try {
-    const userJsonValue = await AsyncStorage.getItem('@user');
-    const tokenJsonValue = await AsyncStorage.getItem('@token');
+    const userJsonValue = storage.getString('@user');
+    const tokenJsonValue = storage.getString('@token');
 
     if (!userJsonValue || !tokenJsonValue) return null;
 
@@ -41,4 +43,35 @@ export const fetchUser = async (): Promise<User | null> => {
   }
 };
 
-export const storeToken = async (token: AccessToken) => {};
+export const storeToken = (token: AccessToken) => {
+  try {
+    const jsonValue = JSON.stringify(token);
+    storage.set('@token', jsonValue);
+    console.debug(`Saved new spotify access token to local storage`);
+    if (token.expires) {
+      console.debug(
+        `New Token expires in ${token.expires - Date.now() / 1000} seconds`
+      );
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const fetchToken = (): AccessToken | null => {
+  try {
+    const jsonValue = storage.getString('@token');
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+export const clearData = () => {
+  storage.clearAll();
+};
+
+export const dump = (): Object => {
+  return storage.toJSON();
+};

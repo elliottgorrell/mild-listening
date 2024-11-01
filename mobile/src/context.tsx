@@ -24,15 +24,12 @@ export const CurrentUserProvider: React.FC<PropsWithChildren> = (props) => {
   const [user, setUser] = useState<User>(LoggedOutUser);
 
   useEffect(() => {
-    async function rehydrate() {
-      const storedUser = await fetchUser();
-      if (storedUser) {
-        console.debug(`rehydrating user: ${JSON.stringify(storedUser)}`);
-        setUser(storedUser);
-      }
-    }
     console.debug('Fetching logged in user from local storage');
-    rehydrate();
+    const storedUser = fetchUser();
+    if (storedUser) {
+      console.debug(`rehydrating user: ${JSON.stringify(storedUser)}`);
+      setUser(storedUser);
+    }
   }, []);
 
   useEffect(() => {
